@@ -1,0 +1,1 @@
+export '../data/firebase_database.dart';

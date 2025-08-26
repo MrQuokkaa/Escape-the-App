@@ -1,0 +1,5 @@
+linter:
+  rules:
+    prefer_const_constructors: false
+    prefer_typing_uninitialized_variables: false
+    sized_box_for_whitespace: false
