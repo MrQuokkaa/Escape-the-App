@@ -10,47 +10,81 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final Functions f = Functions();
+
   late List<Widget> pages;
+  int currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     pages = [
-      HomePage(),
-      ProfilePage(),
-      SettingsPage(),
+      const HomePage(),
+      const ProfilePage(),
+      // SettingsPage is handled in the drawer conditionally
     ];
   }
 
-  Functions f = Functions();
-  int currentPage = 0;
-
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
     return Scaffold(
-      body: pages[currentPage],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPage,
-        onDestinationSelected: (value) {
-          setState(() {
-            currentPage = value;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: "Settings",
-          ),
-        ],
+      key: _scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
       ),
+      drawer: Drawer(
+        width: 200,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Level selectie',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                setState(() => currentPage = 0);
+                Navigator.pop(context); // close drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profiel'),
+              onTap: () {
+                setState(() => currentPage = 1);
+                Navigator.pop(context);
+              },
+            ),
+            if (userProvider.isDev) // 👈 only show Settings for devs
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: () {
+                  setState(() {
+                    // add SettingsPage if not already in pages
+                    if (pages.length < 3) pages.add(const SettingsPage());
+                    currentPage = 2;
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+      body: pages[currentPage],
     );
   }
 }

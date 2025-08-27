@@ -42,32 +42,6 @@ class _DebugPageState extends State<DebugPage> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: () {
-              final int? xpToAdd = int.tryParse(_xpController.text);
-              if (xpToAdd != null) {
-                userProvider.addXP(xpToAdd);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Added $xpToAdd XP")),
-                );
-              }
-            },
-            child: const Text("Add XP"),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: () {
-              final int? newXP = int.tryParse(_xpController.text);
-              if (newXP != null) {
-                userProvider.updateXP(newXP);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("XP set to $newXP")),
-                );
-              }
-            },
-            child: const Text("Set Exact XP"),
-          ),
           const SizedBox(height: 16),
           TextField(
             controller: _levelController,

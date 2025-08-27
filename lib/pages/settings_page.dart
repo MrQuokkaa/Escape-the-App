@@ -59,51 +59,21 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: ListView(
         children: [
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: InkWell(
-              onTap: () async {
-                final uid = FirebaseAuth.instance.currentUser?.uid;
-                if (uid == null) return;
-
-                final doc = await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(uid)
-                    .collection('defaultTodos')
-                    .doc('Monday')
-                    .get();
-
-                List<List<dynamic>> tasks = [];
-                if (doc.exists) {
-                  final data = doc.data();
-                  if (data != null && data['tasks'] is List) {
-                    tasks = List<List<dynamic>>.from(
-                      data['tasks']
-                          .map((task) => [task['name'], task['completed']]),
-                    );
-                  }
-                }
-
-                await Future.delayed(const Duration(milliseconds: 50));
-
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.person_add),
+              label: const Text('Register New Account'),
+              onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        DefaultTodoPage(weekday: 'Monday', toDoList: tasks),
-                  ),
+                  MaterialPageRoute(builder: (_) => const RegisterPage()),
                 );
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  "Edit Default Tasks",
-                  style: textTheme.bodyLarge,
-                ),
-              ),
+             },
             ),
           ),
-          const Divider(),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(

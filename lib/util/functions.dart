@@ -10,34 +10,13 @@ class Functions {
     final hour = DateTime.now().hour;
     String baseGreeting;
     if (hour < 12) {
-      baseGreeting = 'Good morning';
+      baseGreeting = 'Goedemorgen';
     } else if (hour < 17) {
-      baseGreeting = 'Good afternoon';
+      baseGreeting = 'Goedemiddag';
     } else {
-      baseGreeting = 'Good evening';
+      baseGreeting = 'Goedenavond';
     }
     return '$baseGreeting, $name';
-  }
-
-  appBarText(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final d = DateTime.now();
-    var dayOfMonth = d.day;
-    String dateFull = DateFormat('EEEE, MMMM d').format(DateTime.now());
-    final suffix = (dayOfMonth == 1 || dayOfMonth == 21 || dayOfMonth == 31)
-        ? 'st'
-        : (dayOfMonth == 2 || dayOfMonth == 22)
-            ? 'nd'
-            : (dayOfMonth == 3 || dayOfMonth == 23)
-                ? 'rd'
-                : 'th';
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Text(
-        '$dateFull$suffix',
-        style: textTheme.headlineLarge,
-      ),
-    );
   }
 
   Future<User?> login(String email, String password) async {
@@ -50,21 +29,21 @@ class Functions {
       );
       final user = userCredential.user;
 
-      if (user != null) {
-        final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
-        final docSnapshot = await userDocRef.get();
-
-        if (!docSnapshot.exists) {
-          await userDocRef.set({
-            'displayName': user.displayName ?? 'User',
-            'profileImageUrl': '',
-            'level': 0,
-            'xp': 0,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-          debugLog('[Login] Created user document for ${user.uid}');
-        }
-      }
+//      if (user != null) {
+//        final userDocRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+//        final docSnapshot = await userDocRef.get();
+//
+//        if (!docSnapshot.exists) {
+//          await userDocRef.set({
+//            'displayName': user.displayName ?? 'User',
+//            'profileImageUrl': '',
+//            'level': 0,
+//            'xp': 0,
+//            'createdAt': FieldValue.serverTimestamp(),
+//          });
+//          debugLog('[Login] Created user document for ${user.uid}');
+//        }
+//      }
 
       return user;
     } on FirebaseAuthException catch (e) {
@@ -88,9 +67,7 @@ class Functions {
       final firestore = FirebaseFirestore.instance;
       await firestore.collection('users').doc(user.uid).set({
         'displayName': name,
-        'profileImageUrl': '',
         'level': 0,
-        'xp': 0,
         'createAt': FieldValue.serverTimestamp(),
       });
 
@@ -102,7 +79,6 @@ class Functions {
   }
 
   Future<void> logout(BuildContext context) async {
-    HomePage.resetCard();
 
     if (context.mounted) {
       await FirebaseAuth.instance.signOut();

@@ -136,15 +136,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final textTheme = Theme.of(context).textTheme;
     final userProvider = Provider.of<UserProvider>(context);
 
-    final imageUrl = userProvider.imageUrl;
     final userName = userProvider.cachedDisplayName;
 
     final int level = userProvider.level;
-    final int xp = userProvider.xp;
-
-    final int neededXP = userProvider.neededXP;
-    final bool hasLeveledUp = userProvider.hasLeveledUp;
-    final double progress = userProvider.xpProgress;
 
     return Scaffold(
         appBar: AppBar(
@@ -174,15 +168,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: UserAvatar(
-                        imageUrl: imageUrl,
-                        radius: 40,
-                        onTap: () => _showImageDialog(context, imageUrl),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
                     Expanded(
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,12 +187,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  hasLeveledUp
-                                      ? '0/ $neededXP XP'
-                                      : '$xp / $neededXP XP',
-                                  style: textTheme.labelLarge,
-                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: ClipRRect(
@@ -219,16 +198,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                           height: 14,
                                           color: Colors.grey.shade300,
                                         ),
-                                        FractionallySizedBox(
-                                          alignment: Alignment.centerLeft,
-                                          widthFactor: progress,
-                                          child: Container(
-                                            height: 14,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                        ),
+                                        //FractionallySizedBox(
+                                        //  alignment: Alignment.centerLeft,
+                                        //  widthFactor: progress,
+                                        //  child: Container(
+                                        //    height: 14,
+                                        //    color: Theme.of(context)
+                                        //        .colorScheme
+                                        //        .primary,
+                                        //  ),
+                                        //),
                                         Positioned.fill(
                                           child: LayoutBuilder(
                                             builder: (context, constraints) {
