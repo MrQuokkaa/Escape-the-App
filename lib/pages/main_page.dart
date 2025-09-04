@@ -14,7 +14,7 @@ class _MainPageState extends State<MainPage> {
   final Functions f = Functions();
 
   late List<Widget> pages;
-  int currentPage = 0;
+  late int currentPage;
 
   @override
   void initState() {
@@ -22,8 +22,12 @@ class _MainPageState extends State<MainPage> {
     pages = [
       const HomePage(),
       const ProfilePage(),
-      // SettingsPage is handled in the drawer conditionally
+      const SettingsPage(),
     ];
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    currentPage = userProvider.isDev ? 2 : 0;
   }
 
   @override
@@ -68,13 +72,12 @@ class _MainPageState extends State<MainPage> {
                 Navigator.pop(context);
               },
             ),
-            if (userProvider.isDev) // 👈 only show Settings for devs
+            if (userProvider.isDev)
               ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Settings'),
                 onTap: () {
                   setState(() {
-                    // add SettingsPage if not already in pages
                     if (pages.length < 3) pages.add(const SettingsPage());
                     currentPage = 2;
                   });

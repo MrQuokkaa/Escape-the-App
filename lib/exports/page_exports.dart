@@ -1,4 +1,5 @@
 export '../pages/settings/debug_page.dart';
+export '../pages/settings/status_page.dart';
 export '../providers/user_provider.dart';
 export '../pages/home_page.dart';
 export '../pages/levels/level_0_login.dart';

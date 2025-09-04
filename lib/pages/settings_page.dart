@@ -9,9 +9,14 @@ class SettingsPage extends StatefulWidget {
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
-
+ 
 class _SettingsPageState extends State<SettingsPage> {
   String selectedTheme = 'Blue';
+  String? selectedUserId;
+  int? newLevel;
+  int? currentLevel; // NEW
+
+  final TextEditingController _levelController = TextEditingController(); // NEW
 
   @override
   void initState() {
@@ -20,9 +25,16 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
+  void dispose() {
+    _levelController.dispose(); // cleanup
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final textTheme = Theme.of(context).textTheme;
+    final firestore = FirebaseFirestore.instance;
 
     final sortedPresets = presets.toList()
       ..sort((a, b) => a.name == selectedTheme
@@ -35,7 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Padding(
-          padding: EdgeInsets.only(top: 20),
+          padding: const EdgeInsets.only(top: 20),
           child: Text(
             "Settings",
             style: textTheme.headlineLarge,
@@ -43,18 +55,18 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         actions: [
           if (debugMode)
-          Padding(
-            padding: EdgeInsets.only(top:20, right: 10),
-            child: IconButton(
-              icon: const Icon(Icons.bug_report),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => DebugPage()),
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.only(top: 20, right: 10),
+              child: IconButton(
+                icon: const Icon(Icons.bug_report),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => DebugPage()),
+                  );
+                },
+              ),
             ),
-          ),
         ],
       ),
       body: ListView(
@@ -70,12 +82,108 @@ class _SettingsPageState extends State<SettingsPage> {
                   context,
                   MaterialPageRoute(builder: (_) => const RegisterPage()),
                 );
-             },
+              },
             ),
           ),
           const SizedBox(height: 10),
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('Leaderboard'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const StatusPage()),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Text("Manage User Levels", style: textTheme.headlineSmall),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: firestore.collection('users').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final users = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  return data['dev'] != true; // exclude devs
+                }).toList();
+
+                if (users.isEmpty) {
+                  return const Text("No users found.");
+                }
+
+                return DropdownButton<String>(
+                  value: selectedUserId,
+                  hint: const Text("Select a user"),
+                  items: users.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final name = data['displayName'] ?? 'Unknown';
+                    final level = data['level'] ?? 0;
+                    return DropdownMenuItem<String>(
+                      value: doc.id,
+                      child: Text("$name (Level $level)"),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() {
+                      selectedUserId = value;
+                      final userDoc = users.firstWhere((doc) => doc.id == value);
+                      final data = userDoc.data() as Map<String, dynamic>;
+                      currentLevel = data['level'] ?? 0;
+                      newLevel = currentLevel;
+                      _levelController.text = currentLevel.toString();
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (selectedUserId != null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: _levelController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: "New Level",
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (val) {
+                  setState(() => newLevel = int.tryParse(val));
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton(
+                onPressed: newLevel == null
+                    ? null
+                    : () async {
+                        await firestore
+                            .collection('users')
+                            .doc(selectedUserId)
+                            .set({'level': newLevel},
+                                SetOptions(merge: true));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Level updated!")),
+                        );
+                      },
+                child: const Text("Update Level"),
+              ),
+            ),
+          ],
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
