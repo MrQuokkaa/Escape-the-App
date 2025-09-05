@@ -14,9 +14,9 @@ class _SettingsPageState extends State<SettingsPage> {
   String selectedTheme = 'Blue';
   String? selectedUserId;
   int? newLevel;
-  int? currentLevel; // NEW
+  int? currentLevel;
 
-  final TextEditingController _levelController = TextEditingController(); // NEW
+  final TextEditingController _levelController = TextEditingController();
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
-    _levelController.dispose(); // cleanup
+    _levelController.dispose();
     super.dispose();
   }
 

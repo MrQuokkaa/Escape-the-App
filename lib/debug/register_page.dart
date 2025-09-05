@@ -20,7 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     
-    // Only devs can access this page
     if (!userProvider.isDev) {
       return Scaffold(
         appBar: AppBar(title: const Text('Register')),
