@@ -1,5 +1,4 @@
 import '../exports/package_exports.dart';
-import '../exports/util_exports.dart';
 import '../exports/page_exports.dart';
 
 void main() async {
@@ -31,8 +30,6 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<UserProvider>(
         builder: (context, theme, _) {
-          final user = FirebaseAuth.instance.currentUser;
-
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: theme.themeData,
